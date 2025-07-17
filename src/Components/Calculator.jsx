@@ -26,7 +26,7 @@ const Calculator = () => {
   const [inputs, setInputs] = useState({
     principal: 111000,
     periodYears: 15,
-    apr: 4.2,
+    apr: 5,
     prepaymentAmount: 3000
   });
 
@@ -36,7 +36,7 @@ const Calculator = () => {
     paymentsWith: true,
     interestWithout: true,
     interestWith: true,
-    prepayments: true
+    prepayments: false
   });
 
   const toggleChartLine = (key) => {

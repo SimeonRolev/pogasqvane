@@ -1,14 +1,47 @@
 import React, { useState } from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
 
-const Investment = () => {
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+const Investment = ({ initialValues = {} }) => {
   const [inputs, setInputs] = useState({
-    monthlyInvestment: 3000,
-    yearlyReturnRate: 5,
-    investmentYears: 15,
-    initialAmount: 0
+    monthlyInvestment: initialValues.monthlyInvestment || 3000,
+    yearlyReturnRate: initialValues.yearlyReturnRate || 5,
+    investmentYears: initialValues.investmentYears || 15,
+    initialAmount: initialValues.initialAmount || 0
   });
 
   const [results, setResults] = useState(null);
+  const [chartVisibility, setChartVisibility] = useState({
+    balance: true,
+    invested: true,
+    gains: true
+  });
+
+  const toggleChartLine = (key) => {
+    setChartVisibility(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -24,6 +57,7 @@ const Investment = () => {
     let balance = inputs.initialAmount;
     let totalInvested = inputs.initialAmount;
     let monthlyDetails = [];
+    let yearlyDetails = [];
 
     for (let month = 1; month <= totalMonths; month++) {
       // Add monthly investment
@@ -33,10 +67,18 @@ const Investment = () => {
       // Apply monthly interest
       balance = balance * (1 + monthlyRate);
       
-      // Save details for each year (every 12 months)
+      // Save details for each month for the chart
+      monthlyDetails.push({
+        month,
+        balance: Math.round(balance),
+        totalInvested: Math.round(totalInvested),
+        totalGains: Math.round(balance - totalInvested)
+      });
+      
+      // Save details for each year (every 12 months) for summary
       if (month % 12 === 0) {
         const year = month / 12;
-        monthlyDetails.push({
+        yearlyDetails.push({
           year,
           balance: Math.round(balance),
           totalInvested: Math.round(totalInvested),
@@ -55,7 +97,8 @@ const Investment = () => {
       totalInvested: Math.round(totalInvested),
       totalGains,
       totalReturn,
-      yearlyDetails: monthlyDetails
+      yearlyDetails: yearlyDetails,
+      monthlyDetails: monthlyDetails
     });
   };
 
@@ -148,72 +191,135 @@ const Investment = () => {
 
       {results && (
         <div>
-          <div style={{ backgroundColor: '#e8f5e8', padding: '15px', borderRadius: '6px', marginBottom: '15px' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>Резултати от инвестицията</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '12px', margin: '0', color: '#666' }}>Общо инвестирано</p>
-                <p style={{ fontSize: '18px', margin: '5px 0', fontWeight: 'bold', color: '#007bff' }}>
-                  {formatCurrency(results.totalInvested)}
-                </p>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '12px', margin: '0', color: '#666' }}>Финална стойност</p>
-                <p style={{ fontSize: '18px', margin: '5px 0', fontWeight: 'bold', color: '#28a745' }}>
-                  {formatCurrency(results.finalBalance)}
-                </p>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '12px', margin: '0', color: '#666' }}>Общи печалби</p>
-                <p style={{ fontSize: '18px', margin: '5px 0', fontWeight: 'bold', color: '#dc3545' }}>
-                  {formatCurrency(results.totalGains)}
-                </p>
-              </div>
-            </div>
-            <div style={{ textAlign: 'center', marginTop: '10px' }}>
-              <p style={{ fontSize: '14px', margin: '0' }}>
-                <strong>Общо възвръщаемост: {results.totalReturn.toFixed(1)}%</strong>
-              </p>
-            </div>
-          </div>
-
           <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px' }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>Годишен ръст</h4>
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
-                    <th style={{ padding: '6px', textAlign: 'center', border: '1px solid #ddd' }}>Година</th>
-                    <th style={{ padding: '6px', textAlign: 'right', border: '1px solid #ddd' }}>Инвестирано</th>
-                    <th style={{ padding: '6px', textAlign: 'right', border: '1px solid #ddd' }}>Стойност</th>
-                    <th style={{ padding: '6px', textAlign: 'right', border: '1px solid #ddd' }}>Печалба</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.yearlyDetails.map((detail, index) => (
-                    <tr key={detail.year} style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa' }}>
-                      <td style={{ padding: '4px', textAlign: 'center', border: '1px solid #ddd' }}>
-                        {detail.year}
-                      </td>
-                      <td style={{ padding: '4px', textAlign: 'right', border: '1px solid #ddd' }}>
-                        {formatCurrency(detail.totalInvested)}
-                      </td>
-                      <td style={{ padding: '4px', textAlign: 'right', border: '1px solid #ddd', fontWeight: 'bold' }}>
-                        {formatCurrency(detail.balance)}
-                      </td>
-                      <td style={{ 
-                        padding: '4px', 
-                        textAlign: 'right', 
-                        border: '1px solid #ddd',
-                        color: detail.totalGains >= 0 ? '#28a745' : '#dc3545',
-                        fontWeight: 'bold'
-                      }}>
-                        {formatCurrency(detail.totalGains)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <h4 style={{ margin: '0 0 15px 0', fontSize: '15px' }}>Ръст на инвестицията по месеци</h4>
+            
+            {/* Бутони за контрол на видимостта */}
+            <div style={{ marginBottom: '15px' }}>
+              <button
+                onClick={() => toggleChartLine('balance')}
+                style={{
+                  padding: '4px 8px',
+                  margin: '2px',
+                  fontSize: '11px',
+                  border: '1px solid #ccc',
+                  borderRadius: '3px',
+                  backgroundColor: chartVisibility.balance ? 'rgb(54, 162, 235)' : '#f8f9fa',
+                  color: chartVisibility.balance ? 'white' : '#333',
+                  cursor: 'pointer'
+                }}
+              >
+                Стойност на портфейла
+              </button>
+              <button
+                onClick={() => toggleChartLine('invested')}
+                style={{
+                  padding: '4px 8px',
+                  margin: '2px',
+                  fontSize: '11px',
+                  border: '1px solid #ccc',
+                  borderRadius: '3px',
+                  backgroundColor: chartVisibility.invested ? 'rgb(255, 99, 132)' : '#f8f9fa',
+                  color: chartVisibility.invested ? 'white' : '#333',
+                  cursor: 'pointer'
+                }}
+              >
+                Инвестирано
+              </button>
+              <button
+                onClick={() => toggleChartLine('gains')}
+                style={{
+                  padding: '4px 8px',
+                  margin: '2px',
+                  fontSize: '11px',
+                  border: '1px solid #ccc',
+                  borderRadius: '3px',
+                  backgroundColor: chartVisibility.gains ? 'rgb(75, 192, 192)' : '#f8f9fa',
+                  color: chartVisibility.gains ? 'white' : '#333',
+                  cursor: 'pointer'
+                }}
+              >
+                Печалби
+              </button>
+            </div>
+
+            <div style={{ height: '400px' }}>
+              <Line 
+                data={{
+                  labels: results.monthlyDetails.map(detail => detail.month),
+                  datasets: [
+                    ...(chartVisibility.balance ? [{
+                      label: 'Стойност на портфейла',
+                      data: results.monthlyDetails.map(d => d.balance),
+                      borderColor: 'rgb(54, 162, 235)',
+                      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                      tension: 0.1
+                    }] : []),
+                    ...(chartVisibility.invested ? [{
+                      label: 'Инвестирано',
+                      data: results.monthlyDetails.map(d => d.totalInvested),
+                      borderColor: 'rgb(255, 99, 132)',
+                      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                      tension: 0.1
+                    }] : []),
+                    ...(chartVisibility.gains ? [{
+                      label: 'Печалби',
+                      data: results.monthlyDetails.map(d => d.totalGains),
+                      borderColor: 'rgb(75, 192, 192)',
+                      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                      tension: 0.1
+                    }] : [])
+                  ]
+                }} 
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      display: false
+                    },
+                    title: {
+                      display: true,
+                      text: 'Ръст на инвестицията по време',
+                      font: {
+                        size: 14
+                      }
+                    },
+                    tooltip: {
+                      callbacks: {
+                        label: function(context) {
+                          return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                        }
+                      }
+                    }
+                  },
+                  scales: {
+                    x: {
+                      display: true,
+                      title: {
+                        display: true,
+                        text: 'Месец'
+                      }
+                    },
+                    y: {
+                      display: true,
+                      title: {
+                        display: true,
+                        text: 'Сума (лв)'
+                      },
+                      ticks: {
+                        callback: function(value) {
+                          return new Intl.NumberFormat('bg-BG', {
+                            style: 'decimal',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                          }).format(value) + ' лв';
+                        }
+                      }
+                    }
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
