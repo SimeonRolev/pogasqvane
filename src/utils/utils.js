@@ -34,7 +34,7 @@ function generateAnnuitySchedule(principal, periodMonths, apr) {
             payment: Number(payment.toFixed(2)),
             interest: Number(interest.toFixed(2)),
             principal: Number(principalPayment.toFixed(2)),
-            remaining: Number((remainingPrincipal - principalPayment).toFixed(2))
+            remaining: Number(remainingPrincipal.toFixed(2)) // Before payment, not after
         });
         remainingPrincipal -= principalPayment;
     }
@@ -69,21 +69,21 @@ function applyPrepayment(schedule, prepaymentAmount, apr) {
 
     // Генерираме новия план
     const newSchedule = [];
-    let remainingPrincipal = remaining;
+    let remainingBalance = remaining;
 
     for (let month = 1; month <= newPeriod; month++) {
-        const interest = remainingPrincipal * monthlyRate;
+        const interest = remainingBalance * monthlyRate;
         let principalPayment = originalPayment - interest;
         
         if (month === newPeriod) {
-            principalPayment = remainingPrincipal;
+            principalPayment = remainingBalance;
             const finalPayment = principalPayment + interest;
             newSchedule.push({
                 month,
                 payment: Number(finalPayment.toFixed(2)),
                 interest: Number(interest.toFixed(2)),
                 principal: Number(principalPayment.toFixed(2)),
-                remaining: 0
+                remaining: Number(remainingBalance.toFixed(2)) // Before payment
             });
         } else {
             newSchedule.push({
@@ -91,11 +91,11 @@ function applyPrepayment(schedule, prepaymentAmount, apr) {
                 payment: Number(originalPayment.toFixed(2)),
                 interest: Number(interest.toFixed(2)),
                 principal: Number(principalPayment.toFixed(2)),
-                remaining: Number((remainingPrincipal - principalPayment).toFixed(2))
+                remaining: Number(remainingBalance.toFixed(2)) // Before payment
             });
         }
         
-        remainingPrincipal -= principalPayment;
+        remainingBalance -= principalPayment;
     }
 
     return newSchedule;
@@ -103,21 +103,26 @@ function applyPrepayment(schedule, prepaymentAmount, apr) {
 
 
 function mothlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, prepayments: 0, interest: 0, months: 0 }) {
-    if (schedule.length === 0 || prepaymentAmount <= 0) return total;
+    if (schedule.length === 0) {
+        Object.keys(total).forEach(key => {
+            total[key] = Number(total[key].toFixed(0));
+        });
+        return total;
+    }
 
-    const [currentMonthEntry, ...rest] = schedule;
+    const [currentMonth, ...rest] = schedule;
 
-    // Плащаме текущата вноска
-    total.payments += prepaymentAmount + schedule[0].payment;
+    // Плащаме текущата вноска + предсрочно погасяване
+    total.payments += currentMonth.payment + prepaymentAmount;
     total.prepayments += prepaymentAmount;
-    total.interest += currentMonthEntry.interest;
+    total.interest += currentMonth.interest;
     total.months += 1;
 
-    // Погасяваме предсрочно
-    const afterPrepay = applyPrepayment(rest, prepaymentAmount, apr);
+    // Погасяваме предсрочно над останалата част от графика
+    const newSchedule = applyPrepayment(rest, prepaymentAmount, apr);
 
     return mothlyPrepay(
-        afterPrepay,
+        newSchedule,
         prepaymentAmount,
         apr,
         total
@@ -125,4 +130,5 @@ function mothlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, pr
 }
 
 const originalSchedule = generateAnnuitySchedule(111000, 15 * 12, 4.2);
-console.log(mothlyPrepay(originalSchedule, 3000, 4.2));
+console.log('With 0 prepayment:', mothlyPrepay(originalSchedule, 0, 4.2));
+console.log('With 3000 prepayment:', mothlyPrepay(originalSchedule, 3000, 4.2));
