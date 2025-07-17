@@ -129,6 +129,5 @@ function mothlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, pr
     )
 }
 
-const originalSchedule = generateAnnuitySchedule(111000, 15 * 12, 4.2);
-console.log('With 0 prepayment:', mothlyPrepay(originalSchedule, 0, 4.2));
-console.log('With 3000 prepayment:', mothlyPrepay(originalSchedule, 3000, 4.2));
+// Export functions for use in other modules
+export { calculateAnnuityPayment, generateAnnuitySchedule, applyPrepayment, mothlyPrepay };
