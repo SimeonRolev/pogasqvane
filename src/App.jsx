@@ -18,8 +18,8 @@ function App() {
       <div style={{ flex: '1', minWidth: '500px' }}>
         <Investment />
         <Investment initialValues={{
-          monthlyInvestment: 3000,
-          investmentYears: 12,
+          monthlyInvestment: 3878,
+          investmentMonths: 149,
         }} />
       </div>
     </div>

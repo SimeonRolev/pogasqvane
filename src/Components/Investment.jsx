@@ -25,7 +25,7 @@ const Investment = ({ initialValues = {} }) => {
   const [inputs, setInputs] = useState({
     monthlyInvestment: initialValues.monthlyInvestment || 3000,
     yearlyReturnRate: initialValues.yearlyReturnRate || 5,
-    investmentYears: initialValues.investmentYears || 15,
+    investmentMonths: initialValues.investmentMonths || 180,
     initialAmount: initialValues.initialAmount || 0
   });
 
@@ -53,7 +53,7 @@ const Investment = ({ initialValues = {} }) => {
 
   const calculateInvestment = () => {
     const monthlyRate = inputs.yearlyReturnRate / 100 / 12;
-    const totalMonths = inputs.investmentYears * 12;
+    const totalMonths = inputs.investmentMonths;
     let balance = inputs.initialAmount;
     let totalInvested = inputs.initialAmount;
     let monthlyDetails = [];
@@ -159,12 +159,12 @@ const Investment = ({ initialValues = {} }) => {
 
           <div>
             <label style={{ display: 'block', marginBottom: '3px', fontWeight: 'bold', fontSize: '13px' }}>
-              Период на инвестиране (години):
+              Период на инвестиране (месеци):
             </label>
             <input
               type="number"
-              name="investmentYears"
-              value={inputs.investmentYears}
+              name="investmentMonths"
+              value={inputs.investmentMonths}
               onChange={handleInputChange}
               style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
