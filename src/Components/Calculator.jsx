@@ -61,13 +61,9 @@ const Calculator = () => {
     const withoutPrepaymentArray = monthlyPrepay(originalSchedule, 0, inputs.apr);
     const withPrepaymentArray = monthlyPrepay(originalSchedule, inputs.prepaymentAmount, inputs.apr);
 
-    // Получаваме финалните резултати от последния елемент в масивите
-    const withoutPrepayment = withoutPrepaymentArray.length > 0 ? withoutPrepaymentArray[withoutPrepaymentArray.length - 1] : { payments: 0, prepayments: 0, interest: 0, months: 0 };
-    const withPrepayment = withPrepaymentArray.length > 0 ? withPrepaymentArray[withPrepaymentArray.length - 1] : { payments: 0, prepayments: 0, interest: 0, months: 0 };
-
     setResults({
-      withoutPrepayment,
-      withPrepayment,
+      withoutPrepayment: withoutPrepaymentArray[withoutPrepaymentArray.length - 1],
+      withPrepayment: withPrepaymentArray[withPrepaymentArray.length - 1],
       monthlyPayment: originalSchedule[0]?.payment || 0,
       originalSchedule,
       withoutPrepaymentChart: withoutPrepaymentArray,
