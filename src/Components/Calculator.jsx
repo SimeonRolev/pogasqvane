@@ -31,6 +31,20 @@ const Calculator = () => {
   });
 
   const [results, setResults] = useState(null);
+  const [chartVisibility, setChartVisibility] = useState({
+    paymentsWithout: true,
+    paymentsWith: true,
+    interestWithout: true,
+    interestWith: true,
+    prepayments: true
+  });
+
+  const toggleChartLine = (key) => {
+    setChartVisibility(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -195,46 +209,133 @@ const Calculator = () => {
           {results.withoutPrepaymentChart && results.withPrepaymentChart && (
             <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px', marginTop: '15px' }}>
               <h4 style={{ margin: '0 0 15px 0', fontSize: '15px' }}>Графика на кумулативните плащания по месеци</h4>
+              
+              {/* Бутони за контрол на видимостта */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                <div>
+                  <h5 style={{ margin: '0 0 10px 0', fontSize: '13px', fontWeight: 'bold' }}>Без предсрочно погасяване:</h5>
+                  <button
+                    onClick={() => toggleChartLine('paymentsWithout')}
+                    style={{
+                      padding: '4px 8px',
+                      margin: '2px',
+                      fontSize: '11px',
+                      border: '1px solid #ccc',
+                      borderRadius: '3px',
+                      backgroundColor: chartVisibility.paymentsWithout ? 'rgb(255, 99, 132)' : '#f8f9fa',
+                      color: chartVisibility.paymentsWithout ? 'white' : '#333',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Общо плащания
+                  </button>
+                  <button
+                    onClick={() => toggleChartLine('interestWithout')}
+                    style={{
+                      padding: '4px 8px',
+                      margin: '2px',
+                      fontSize: '11px',
+                      border: '1px solid #ccc',
+                      borderRadius: '3px',
+                      backgroundColor: chartVisibility.interestWithout ? 'rgb(255, 206, 86)' : '#f8f9fa',
+                      color: chartVisibility.interestWithout ? 'white' : '#333',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Лихви
+                  </button>
+                </div>
+                
+                <div>
+                  <h5 style={{ margin: '0 0 10px 0', fontSize: '13px', fontWeight: 'bold' }}>С предсрочно погасяване:</h5>
+                  <button
+                    onClick={() => toggleChartLine('paymentsWith')}
+                    style={{
+                      padding: '4px 8px',
+                      margin: '2px',
+                      fontSize: '11px',
+                      border: '1px solid #ccc',
+                      borderRadius: '3px',
+                      backgroundColor: chartVisibility.paymentsWith ? 'rgb(54, 162, 235)' : '#f8f9fa',
+                      color: chartVisibility.paymentsWith ? 'white' : '#333',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Общо плащания
+                  </button>
+                  <button
+                    onClick={() => toggleChartLine('interestWith')}
+                    style={{
+                      padding: '4px 8px',
+                      margin: '2px',
+                      fontSize: '11px',
+                      border: '1px solid #ccc',
+                      borderRadius: '3px',
+                      backgroundColor: chartVisibility.interestWith ? 'rgb(75, 192, 192)' : '#f8f9fa',
+                      color: chartVisibility.interestWith ? 'white' : '#333',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Лихви
+                  </button>
+                  <button
+                    onClick={() => toggleChartLine('prepayments')}
+                    style={{
+                      padding: '4px 8px',
+                      margin: '2px',
+                      fontSize: '11px',
+                      border: '1px solid #ccc',
+                      borderRadius: '3px',
+                      backgroundColor: chartVisibility.prepayments ? 'rgb(153, 102, 255)' : '#f8f9fa',
+                      color: chartVisibility.prepayments ? 'white' : '#333',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Предсрочни плащания
+                  </button>
+                </div>
+              </div>
+
               <div style={{ height: '400px' }}>
                 <Line 
                   data={{
                     labels: Array.from({ length: Math.max(results.withoutPrepaymentChart.length, results.withPrepaymentChart.length) }, (_, i) => i + 1),
                     datasets: [
-                      {
+                      ...(chartVisibility.paymentsWithout ? [{
                         label: 'Общо плащания (без предсрочно)',
                         data: results.withoutPrepaymentChart.map(d => d.payments),
                         borderColor: 'rgb(255, 99, 132)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         tension: 0.1
-                      },
-                      {
+                      }] : []),
+                      ...(chartVisibility.paymentsWith ? [{
                         label: 'Общо плащания (с предсрочно)',
                         data: results.withPrepaymentChart.map(d => d.payments),
                         borderColor: 'rgb(54, 162, 235)',
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         tension: 0.1
-                      },
-                      {
+                      }] : []),
+                      ...(chartVisibility.interestWithout ? [{
                         label: 'Лихви (без предсрочно)',
                         data: results.withoutPrepaymentChart.map(d => d.interest),
                         borderColor: 'rgb(255, 206, 86)',
                         backgroundColor: 'rgba(255, 206, 86, 0.2)',
                         tension: 0.1
-                      },
-                      {
+                      }] : []),
+                      ...(chartVisibility.interestWith ? [{
                         label: 'Лихви (с предсрочно)',
                         data: results.withPrepaymentChart.map(d => d.interest),
                         borderColor: 'rgb(75, 192, 192)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                         tension: 0.1
-                      },
-                      {
+                      }] : []),
+                      ...(chartVisibility.prepayments ? [{
                         label: 'Предсрочни плащания',
                         data: results.withPrepaymentChart.map(d => d.prepayments),
                         borderColor: 'rgb(153, 102, 255)',
                         backgroundColor: 'rgba(153, 102, 255, 0.2)',
                         tension: 0.1
-                      }
+                      }] : [])
                     ]
                   }} 
                   options={{
@@ -242,12 +343,7 @@ const Calculator = () => {
                     maintainAspectRatio: false,
                     plugins: {
                       legend: {
-                        position: 'top',
-                        labels: {
-                          font: {
-                            size: 11
-                          }
-                        }
+                        display: false
                       },
                       title: {
                         display: true,
