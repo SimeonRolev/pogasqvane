@@ -49,6 +49,53 @@ function generateAnnuitySchedule(principal, periodMonths, apr) {
 const schedule = generateAnnuitySchedule(111000, 15 * 12, 4.2);
 
 /**
+ * Генерира погасителен план по зададена анюитетна вноска, главница, срок и ГПР.
+ * @param {number} principal - Размер на заема (главница)
+ * @param {number} periodMonths - Срок на заема в месеци
+ * @param {number} apr - Годишен процент на разходите (ГПР) в проценти
+ * @param {number} payment - Месечна анюитетна вноска
+ * @returns {Array} Масив с обекти за всяка месечна вноска
+ */
+function generateScheduleByPayment(principal, periodMonths, apr, payment) {
+    const schedule = [];
+    let remainingPrincipal = principal;
+    const monthlyRate = apr / 100 / 12;
+
+    for (let month = 1; month <= periodMonths; month++) {
+        const interest = remainingPrincipal * monthlyRate;
+        let principalPayment = payment - interest;
+
+        // Последна вноска: плащаме остатъка, ако е по-малък от вноската
+        if (month === periodMonths || principalPayment > remainingPrincipal) {
+            principalPayment = remainingPrincipal;
+            const finalPayment = principalPayment + interest;
+            schedule.push({
+                month,
+                payment: Number(finalPayment.toFixed(2)),
+                interest: Number(interest.toFixed(2)),
+                principal: Number(principalPayment.toFixed(2)),
+                remaining: 0
+            });
+            break;
+        } else {
+            schedule.push({
+                month,
+                payment: Number(payment.toFixed(2)),
+                interest: Number(interest.toFixed(2)),
+                principal: Number(principalPayment.toFixed(2)),
+                remaining: Number((remainingPrincipal - principalPayment).toFixed(2))
+            });
+        }
+
+        remainingPrincipal -= principalPayment;
+    }
+    return schedule;
+}
+
+const sheduleByPayment = generateScheduleByPayment(111000, 15 * 12, 4.2, 832.22);
+writeScheduleToFile(sheduleByPayment, 'schedule_by_payment.json');
+
+/**
  * Записва погасителен план в JSON файл.
  * @param {Array} schedule - Масив с обекти за всяка месечна вноска
  * @param {string} filename - Име на файла за запис
@@ -131,8 +178,9 @@ function recalculateScheduleWithPrepayment(schedule, month, prepaymentAmount, ap
 const originalSchedule = generateAnnuitySchedule(111000, 15 * 12, 4.2);
 
 // 2. Погасяваме предсрочно 3000 лв. след първата месечна вноска
-const updatedSchedule = recalculateScheduleWithPrepayment(originalSchedule, 1, 3000, 4.2);
+// const updatedSchedule = recalculateScheduleWithPrepayment(originalSchedule, 1, 3000, 4.2);
 
 // 3. Записваме двата погасителни плана в 2 файла
 writeScheduleToFile(originalSchedule, 'original_schedule.json');
-writeScheduleToFile(updatedSchedule, 'updated_schedule.json');
+// writeScheduleToFile(updatedSchedule, 'updated_schedule.json');
+
