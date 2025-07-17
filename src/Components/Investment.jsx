@@ -67,15 +67,15 @@ const Investment = () => {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Калкулатор за инвестиции</h1>
+    <div style={{ padding: '10px', maxWidth: '100%', fontFamily: 'Arial, sans-serif', fontSize: '14px' }}>
+      <h2 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>Калкулатор за инвестиции</h2>
       
-      <div style={{ backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
-        <h2>Параметри на инвестицията</h2>
+      <div style={{ backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '6px', marginBottom: '15px' }}>
+        <h3 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>Параметри на инвестицията</h3>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            <label style={{ display: 'block', marginBottom: '3px', fontWeight: 'bold', fontSize: '13px' }}>
               Начална сума (лв):
             </label>
             <input
@@ -83,12 +83,12 @@ const Investment = () => {
               name="initialAmount"
               value={inputs.initialAmount}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            <label style={{ display: 'block', marginBottom: '3px', fontWeight: 'bold', fontSize: '13px' }}>
               Месечна инвестиция (лв):
             </label>
             <input
@@ -96,12 +96,12 @@ const Investment = () => {
               name="monthlyInvestment"
               value={inputs.monthlyInvestment}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            <label style={{ display: 'block', marginBottom: '3px', fontWeight: 'bold', fontSize: '13px' }}>
               Годишна доходност (%):
             </label>
             <input
@@ -110,12 +110,12 @@ const Investment = () => {
               name="yearlyReturnRate"
               value={inputs.yearlyReturnRate}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+            <label style={{ display: 'block', marginBottom: '3px', fontWeight: 'bold', fontSize: '13px' }}>
               Период на инвестиране (години):
             </label>
             <input
@@ -123,7 +123,7 @@ const Investment = () => {
               name="investmentYears"
               value={inputs.investmentYears}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
         </div>
@@ -131,14 +131,14 @@ const Investment = () => {
         <button
           onClick={calculateInvestment}
           style={{
-            marginTop: '20px',
-            padding: '12px 24px',
+            marginTop: '15px',
+            padding: '8px 16px',
             backgroundColor: '#28a745',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '16px',
+            fontSize: '14px',
             fontWeight: 'bold'
           }}
         >
@@ -148,61 +148,61 @@ const Investment = () => {
 
       {results && (
         <div>
-          <div style={{ backgroundColor: '#e8f5e8', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
-            <h2>Резултати от инвестицията</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+          <div style={{ backgroundColor: '#e8f5e8', padding: '15px', borderRadius: '6px', marginBottom: '15px' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>Резултати от инвестицията</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
               <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '14px', margin: '0', color: '#666' }}>Общо инвестирано</p>
-                <p style={{ fontSize: '24px', margin: '5px 0', fontWeight: 'bold', color: '#007bff' }}>
+                <p style={{ fontSize: '12px', margin: '0', color: '#666' }}>Общо инвестирано</p>
+                <p style={{ fontSize: '18px', margin: '5px 0', fontWeight: 'bold', color: '#007bff' }}>
                   {formatCurrency(results.totalInvested)}
                 </p>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '14px', margin: '0', color: '#666' }}>Финална стойност</p>
-                <p style={{ fontSize: '24px', margin: '5px 0', fontWeight: 'bold', color: '#28a745' }}>
+                <p style={{ fontSize: '12px', margin: '0', color: '#666' }}>Финална стойност</p>
+                <p style={{ fontSize: '18px', margin: '5px 0', fontWeight: 'bold', color: '#28a745' }}>
                   {formatCurrency(results.finalBalance)}
                 </p>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '14px', margin: '0', color: '#666' }}>Общи печалби</p>
-                <p style={{ fontSize: '24px', margin: '5px 0', fontWeight: 'bold', color: '#dc3545' }}>
+                <p style={{ fontSize: '12px', margin: '0', color: '#666' }}>Общи печалби</p>
+                <p style={{ fontSize: '18px', margin: '5px 0', fontWeight: 'bold', color: '#dc3545' }}>
                   {formatCurrency(results.totalGains)}
                 </p>
               </div>
             </div>
-            <div style={{ textAlign: 'center', marginTop: '15px' }}>
-              <p style={{ fontSize: '16px', margin: '0' }}>
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <p style={{ fontSize: '14px', margin: '0' }}>
                 <strong>Общо възвръщаемост: {results.totalReturn.toFixed(1)}%</strong>
               </p>
             </div>
           </div>
 
-          <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px' }}>
-            <h3>Годишен ръст</h3>
-            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px' }}>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>Годишен ръст</h4>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
-                    <th style={{ padding: '10px', textAlign: 'center', border: '1px solid #ddd' }}>Година</th>
-                    <th style={{ padding: '10px', textAlign: 'right', border: '1px solid #ddd' }}>Инвестирано</th>
-                    <th style={{ padding: '10px', textAlign: 'right', border: '1px solid #ddd' }}>Стойност</th>
-                    <th style={{ padding: '10px', textAlign: 'right', border: '1px solid #ddd' }}>Печалба</th>
+                    <th style={{ padding: '6px', textAlign: 'center', border: '1px solid #ddd' }}>Година</th>
+                    <th style={{ padding: '6px', textAlign: 'right', border: '1px solid #ddd' }}>Инвестирано</th>
+                    <th style={{ padding: '6px', textAlign: 'right', border: '1px solid #ddd' }}>Стойност</th>
+                    <th style={{ padding: '6px', textAlign: 'right', border: '1px solid #ddd' }}>Печалба</th>
                   </tr>
                 </thead>
                 <tbody>
                   {results.yearlyDetails.map((detail, index) => (
                     <tr key={detail.year} style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa' }}>
-                      <td style={{ padding: '8px', textAlign: 'center', border: '1px solid #ddd' }}>
+                      <td style={{ padding: '4px', textAlign: 'center', border: '1px solid #ddd' }}>
                         {detail.year}
                       </td>
-                      <td style={{ padding: '8px', textAlign: 'right', border: '1px solid #ddd' }}>
+                      <td style={{ padding: '4px', textAlign: 'right', border: '1px solid #ddd' }}>
                         {formatCurrency(detail.totalInvested)}
                       </td>
-                      <td style={{ padding: '8px', textAlign: 'right', border: '1px solid #ddd', fontWeight: 'bold' }}>
+                      <td style={{ padding: '4px', textAlign: 'right', border: '1px solid #ddd', fontWeight: 'bold' }}>
                         {formatCurrency(detail.balance)}
                       </td>
                       <td style={{ 
-                        padding: '8px', 
+                        padding: '4px', 
                         textAlign: 'right', 
                         border: '1px solid #ddd',
                         color: detail.totalGains >= 0 ? '#28a745' : '#dc3545',
