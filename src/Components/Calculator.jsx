@@ -1,5 +1,26 @@
 import React, { useState } from 'react';
 import { generateAnnuitySchedule, monthlyPrepay } from '../utils/utils.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Calculator = () => {
   const [inputs, setInputs] = useState({
@@ -23,14 +44,20 @@ const Calculator = () => {
     const periodMonths = inputs.periodYears * 12;
     const originalSchedule = generateAnnuitySchedule(inputs.principal, periodMonths, inputs.apr);
     
-    const withoutPrepayment = monthlyPrepay(originalSchedule, 0, inputs.apr);
-    const withPrepayment = monthlyPrepay(originalSchedule, inputs.prepaymentAmount, inputs.apr);
+    const withoutPrepaymentArray = monthlyPrepay(originalSchedule, 0, inputs.apr);
+    const withPrepaymentArray = monthlyPrepay(originalSchedule, inputs.prepaymentAmount, inputs.apr);
+
+    // Получаваме финалните резултати от последния елемент в масивите
+    const withoutPrepayment = withoutPrepaymentArray.length > 0 ? withoutPrepaymentArray[withoutPrepaymentArray.length - 1] : { payments: 0, prepayments: 0, interest: 0, months: 0 };
+    const withPrepayment = withPrepaymentArray.length > 0 ? withPrepaymentArray[withPrepaymentArray.length - 1] : { payments: 0, prepayments: 0, interest: 0, months: 0 };
 
     setResults({
       withoutPrepayment,
       withPrepayment,
       monthlyPayment: originalSchedule[0]?.payment || 0,
-      originalSchedule
+      originalSchedule,
+      withoutPrepaymentChart: withoutPrepaymentArray,
+      withPrepaymentChart: withPrepaymentArray
     });
   };
 
@@ -163,6 +190,106 @@ const Calculator = () => {
                ({formatNumber(Math.round((results.withoutPrepayment.months - results.withPrepayment.months) / 12 * 10) / 10)} години)</p>
             <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Общо спестени разходи:</strong> {formatCurrency(results.withoutPrepayment.payments - results.withPrepayment.payments)}</p>
           </div>
+
+          {/* Графика */}
+          {results.withoutPrepaymentChart && results.withPrepaymentChart && (
+            <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '6px', marginTop: '15px' }}>
+              <h4 style={{ margin: '0 0 15px 0', fontSize: '15px' }}>Графика на кумулативните плащания по месеци</h4>
+              <div style={{ height: '400px' }}>
+                <Line 
+                  data={{
+                    labels: Array.from({ length: Math.max(results.withoutPrepaymentChart.length, results.withPrepaymentChart.length) }, (_, i) => i + 1),
+                    datasets: [
+                      {
+                        label: 'Общо плащания (без предсрочно)',
+                        data: results.withoutPrepaymentChart.map(d => d.payments),
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        tension: 0.1
+                      },
+                      {
+                        label: 'Общо плащания (с предсрочно)',
+                        data: results.withPrepaymentChart.map(d => d.payments),
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        tension: 0.1
+                      },
+                      {
+                        label: 'Лихви (без предсрочно)',
+                        data: results.withoutPrepaymentChart.map(d => d.interest),
+                        borderColor: 'rgb(255, 206, 86)',
+                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                        tension: 0.1
+                      },
+                      {
+                        label: 'Лихви (с предсрочно)',
+                        data: results.withPrepaymentChart.map(d => d.interest),
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1
+                      },
+                      {
+                        label: 'Предсрочни плащания',
+                        data: results.withPrepaymentChart.map(d => d.prepayments),
+                        borderColor: 'rgb(153, 102, 255)',
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        tension: 0.1
+                      }
+                    ]
+                  }} 
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'top',
+                        labels: {
+                          font: {
+                            size: 11
+                          }
+                        }
+                      },
+                      title: {
+                        display: true,
+                        text: 'Кумулативни разходи по време на погасяването',
+                        font: {
+                          size: 14
+                        }
+                      },
+                      tooltip: {
+                        callbacks: {
+                          label: function(context) {
+                            return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                          }
+                        }
+                      }
+                    },
+                    scales: {
+                      x: {
+                        display: true,
+                        title: {
+                          display: true,
+                          text: 'Месец'
+                        }
+                      },
+                      y: {
+                        display: true,
+                        title: {
+                          display: true,
+                          text: 'Сума (лв)'
+                        },
+                        ticks: {
+                          callback: function(value) {
+                            return formatNumber(value) + ' лв';
+                          }
+                        }
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

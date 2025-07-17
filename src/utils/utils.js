@@ -102,21 +102,31 @@ function applyPrepayment(schedule, prepaymentAmount, apr) {
 }
 
 
-function monthlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, prepayments: 0, interest: 0, months: 0 }) {
+function monthlyPrepay(schedule, prepaymentAmount, apr, total = [{ payments: 0, prepayments: 0, interest: 0, months: 0 }]) {
     if (schedule.length === 0) {
-        Object.keys(total).forEach(key => {
-            total[key] = Number(total[key].toFixed(0));
-        });
         return total;
     }
 
     const [currentMonth, ...rest] = schedule;
+    
+    // Получаваме последните кумулативни стойности или започваме от нула
+    const lastTotal = total[total.length - 1]
 
-    // Плащаме текущата вноска + предсрочно погасяване
-    total.payments += currentMonth.payment + prepaymentAmount;
-    total.prepayments += prepaymentAmount;
-    total.interest += currentMonth.interest;
-    total.months += 1;
+    // Изчисляваме новите кумулативни стойности
+    const newTotal = {
+        payments: lastTotal.payments + currentMonth.payment + prepaymentAmount,
+        prepayments: lastTotal.prepayments + prepaymentAmount,
+        interest: lastTotal.interest + currentMonth.interest,
+        months: lastTotal.months + 1
+    };
+
+    // Добавяме новия обект към масива
+    total.push({
+        payments: Number(newTotal.payments.toFixed(2)),
+        prepayments: Number(newTotal.prepayments.toFixed(2)),
+        interest: Number(newTotal.interest.toFixed(2)),
+        months: newTotal.months
+    });
 
     // Погасяваме предсрочно над останалата част от графика
     const newSchedule = applyPrepayment(rest, prepaymentAmount, apr);
@@ -126,7 +136,7 @@ function monthlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, p
         prepaymentAmount,
         apr,
         total
-    )
+    );
 }
 
 // Export functions for use in other modules
