@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { generateAnnuitySchedule, mothlyPrepay } from '../utils/utils.js';
+import { generateAnnuitySchedule, monthlyPrepay } from '../utils/utils.js';
 
 const Calculator = () => {
   const [inputs, setInputs] = useState({
@@ -23,8 +23,8 @@ const Calculator = () => {
     const periodMonths = inputs.periodYears * 12;
     const originalSchedule = generateAnnuitySchedule(inputs.principal, periodMonths, inputs.apr);
     
-    const withoutPrepayment = mothlyPrepay(originalSchedule, 0, inputs.apr);
-    const withPrepayment = mothlyPrepay(originalSchedule, inputs.prepaymentAmount, inputs.apr);
+    const withoutPrepayment = monthlyPrepay(originalSchedule, 0, inputs.apr);
+    const withPrepayment = monthlyPrepay(originalSchedule, inputs.prepaymentAmount, inputs.apr);
 
     setResults({
       withoutPrepayment,

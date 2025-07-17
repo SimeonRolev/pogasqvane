@@ -102,7 +102,7 @@ function applyPrepayment(schedule, prepaymentAmount, apr) {
 }
 
 
-function mothlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, prepayments: 0, interest: 0, months: 0 }) {
+function monthlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, prepayments: 0, interest: 0, months: 0 }) {
     if (schedule.length === 0) {
         Object.keys(total).forEach(key => {
             total[key] = Number(total[key].toFixed(0));
@@ -121,7 +121,7 @@ function mothlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, pr
     // Погасяваме предсрочно над останалата част от графика
     const newSchedule = applyPrepayment(rest, prepaymentAmount, apr);
 
-    return mothlyPrepay(
+    return monthlyPrepay(
         newSchedule,
         prepaymentAmount,
         apr,
@@ -130,4 +130,4 @@ function mothlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, pr
 }
 
 // Export functions for use in other modules
-export { calculateAnnuityPayment, generateAnnuitySchedule, applyPrepayment, mothlyPrepay };
+export { calculateAnnuityPayment, generateAnnuitySchedule, applyPrepayment, monthlyPrepay };
