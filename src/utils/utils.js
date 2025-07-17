@@ -1,6 +1,3 @@
-import { writeFileSync } from 'fs';
-import { resolve } from 'path';
-
 /**
  * Изчислява анюитетна месечна вноска по заем.
  * @param {number} principal - Размер на заема (главница)
@@ -15,8 +12,6 @@ function calculateAnnuityPayment(principal, periodMonths, apr) {
     const annuity = principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -periodMonths));
     return annuity;
 }
-
-// console.log(calculateAnnuityPayment(111000, 15 * 12, 4.2))
 
 /**
  * Генерира погасителен план по анюитетни вноски.
@@ -46,92 +41,25 @@ function generateAnnuitySchedule(principal, periodMonths, apr) {
     return schedule;
 }
 
-const schedule = generateAnnuitySchedule(111000, 15 * 12, 4.2);
-
 /**
- * Генерира погасителен план по зададена анюитетна вноска, главница, срок и ГПР.
- * @param {number} principal - Размер на заема (главница)
- * @param {number} periodMonths - Срок на заема в месеци
+ * Прилага предсрочно погасяване и преизчислява план със скъсен срок.
+ * @param {Array} schedule - Текущият погасителен план
+ * @param {number} prepaymentAmount - Сума на предсрочното погасяване
  * @param {number} apr - Годишен процент на разходите (ГПР) в проценти
- * @param {number} payment - Месечна анюитетна вноска
- * @returns {Array} Масив с обекти за всяка месечна вноска
+ * @returns {Array} Нов погасителен план със скъсен срок
  */
-function generateScheduleByPayment(principal, periodMonths, apr, payment) {
-    const schedule = [];
-    let remainingPrincipal = principal;
-    const monthlyRate = apr / 100 / 12;
+function applyPrepayment(schedule, prepaymentAmount, apr) {
+    if (schedule.length === 0 || prepaymentAmount <= 0) return schedule;
 
-    for (let month = 1; month <= periodMonths; month++) {
-        const interest = remainingPrincipal * monthlyRate;
-        let principalPayment = payment - interest;
-
-        // Последна вноска: плащаме остатъка, ако е по-малък от вноската
-        if (month === periodMonths || principalPayment > remainingPrincipal) {
-            principalPayment = remainingPrincipal;
-            const finalPayment = principalPayment + interest;
-            schedule.push({
-                month,
-                payment: Number(finalPayment.toFixed(2)),
-                interest: Number(interest.toFixed(2)),
-                principal: Number(principalPayment.toFixed(2)),
-                remaining: 0
-            });
-            break;
-        } else {
-            schedule.push({
-                month,
-                payment: Number(payment.toFixed(2)),
-                interest: Number(interest.toFixed(2)),
-                principal: Number(principalPayment.toFixed(2)),
-                remaining: Number((remainingPrincipal - principalPayment).toFixed(2))
-            });
-        }
-
-        remainingPrincipal -= principalPayment;
-    }
-    return schedule;
-}
-
-const sheduleByPayment = generateScheduleByPayment(111000, 15 * 12, 4.2, 832.22);
-writeScheduleToFile(sheduleByPayment, 'schedule_by_payment.json');
-
-/**
- * Записва погасителен план в JSON файл.
- * @param {Array} schedule - Масив с обекти за всяка месечна вноска
- * @param {string} filename - Име на файла за запис
- */
-function writeScheduleToFile(schedule, filename) {
-    const filePath = resolve(filename);
-    writeFileSync(filePath, JSON.stringify(schedule, null, 2), 'utf8');
-}
-
-// Пример за използване:
-// writeScheduleToFile(schedule, 'schedule.json');
-
-/**
- * Преизчислява погасителен план при частично предсрочно погасяване.
- * Запазва първоначалната анюитетна вноска и скъсява срока на заема.
- * @param {Array} schedule - Оригиналният погасителен план
- * @param {number} month - Месецът, в който се прави предсрочното погасяване (1-базирано)
- * @param {number} prepaymentAmount - Сума на частичното предсрочно погасяване
- * @param {number} apr - Годишен процент на разходите (ГПР) в проценти
- * @returns {Array} Нов погасителен план от момента на погасяването нататък
- */
-function recalculateScheduleWithPrepayment(schedule, month, prepaymentAmount, apr) {
-    if (month < 1 || month > schedule.length || prepaymentAmount <= 0) return schedule;
-
-    // Копираме до месеца на погасяване
-    const newSchedule = schedule.slice(0, month);
-
-    // Оставаща главница след плащането за този месец
-    let remaining = schedule[month - 1].remaining - prepaymentAmount;
-    if (remaining <= 0) return newSchedule;
+    // Вземаме текущата оставаща главница (от първия месец в плана)
+    let remaining = schedule[0].remaining - prepaymentAmount;
+    if (remaining <= 0) return []; // Заемът е изплатен напълно
 
     // Оригиналната месечна вноска
     const originalPayment = schedule[0].payment;
     const monthlyRate = apr / 100 / 12;
 
-    // Изчисляваме новия срок с формулата за анюитет
+    // Изчисляваме новия срок
     let newPeriod;
     if (monthlyRate === 0) {
         newPeriod = Math.ceil(remaining / originalPayment);
@@ -139,28 +67,27 @@ function recalculateScheduleWithPrepayment(schedule, month, prepaymentAmount, ap
         newPeriod = Math.ceil(-Math.log(1 - (remaining * monthlyRate) / originalPayment) / Math.log(1 + monthlyRate));
     }
 
-    // Генерираме новия план с оригиналната вноска за новия срок
-    const recalculated = [];
+    // Генерираме новия план
+    const newSchedule = [];
     let remainingPrincipal = remaining;
 
-    for (let i = 1; i <= newPeriod; i++) {
+    for (let month = 1; month <= newPeriod; month++) {
         const interest = remainingPrincipal * monthlyRate;
         let principalPayment = originalPayment - interest;
         
-        // При последната вноска може да е необходимо да платим по-малко
-        if (i === newPeriod) {
+        if (month === newPeriod) {
             principalPayment = remainingPrincipal;
             const finalPayment = principalPayment + interest;
-            recalculated.push({
-                month: month + i,
+            newSchedule.push({
+                month,
                 payment: Number(finalPayment.toFixed(2)),
                 interest: Number(interest.toFixed(2)),
                 principal: Number(principalPayment.toFixed(2)),
                 remaining: 0
             });
         } else {
-            recalculated.push({
-                month: month + i,
+            newSchedule.push({
+                month,
                 payment: Number(originalPayment.toFixed(2)),
                 interest: Number(interest.toFixed(2)),
                 principal: Number(principalPayment.toFixed(2)),
@@ -171,16 +98,31 @@ function recalculateScheduleWithPrepayment(schedule, month, prepaymentAmount, ap
         remainingPrincipal -= principalPayment;
     }
 
-    return newSchedule.concat(recalculated);
+    return newSchedule;
 }
 
-// 1. Създаваме примерен погасителен план
+
+function mothlyPrepay(schedule, prepaymentAmount, apr, total = { payments: 0, prepayments: 0, interest: 0, months: 0 }) {
+    if (schedule.length === 0 || prepaymentAmount <= 0) return total;
+
+    const [currentMonthEntry, ...rest] = schedule;
+
+    // Плащаме текущата вноска
+    total.payments += prepaymentAmount + schedule[0].payment;
+    total.prepayments += prepaymentAmount;
+    total.interest += currentMonthEntry.interest;
+    total.months += 1;
+
+    // Погасяваме предсрочно
+    const afterPrepay = applyPrepayment(rest, prepaymentAmount, apr);
+
+    return mothlyPrepay(
+        afterPrepay,
+        prepaymentAmount,
+        apr,
+        total
+    )
+}
+
 const originalSchedule = generateAnnuitySchedule(111000, 15 * 12, 4.2);
-
-// 2. Погасяваме предсрочно 3000 лв. след първата месечна вноска
-// const updatedSchedule = recalculateScheduleWithPrepayment(originalSchedule, 1, 3000, 4.2);
-
-// 3. Записваме двата погасителни плана в 2 файла
-writeScheduleToFile(originalSchedule, 'original_schedule.json');
-// writeScheduleToFile(updatedSchedule, 'updated_schedule.json');
-
+console.log(mothlyPrepay(originalSchedule, 3000, 4.2));
