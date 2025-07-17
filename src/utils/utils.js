@@ -63,6 +63,7 @@ function writeScheduleToFile(schedule, filename) {
 
 /**
  * Преизчислява погасителен план при частично предсрочно погасяване.
+ * Запазва първоначалната анюитетна вноска и скъсява срока на заема.
  * @param {Array} schedule - Оригиналният погасителен план
  * @param {number} month - Месецът, в който се прави предсрочното погасяване (1-базирано)
  * @param {number} prepaymentAmount - Сума на частичното предсрочно погасяване
@@ -77,20 +78,51 @@ function recalculateScheduleWithPrepayment(schedule, month, prepaymentAmount, ap
 
     // Оставаща главница след плащането за този месец
     let remaining = schedule[month - 1].remaining - prepaymentAmount;
-    if (remaining < 0) remaining = 0;
+    if (remaining <= 0) return newSchedule;
 
-    // Оставащи месеци
-    const remainingMonths = schedule.length - month;
+    // Оригиналната месечна вноска
+    const originalPayment = schedule[0].payment;
+    const monthlyRate = apr / 100 / 12;
 
-    if (remainingMonths === 0 || remaining === 0) return newSchedule;
+    // Изчисляваме новия срок с формулата за анюитет
+    let newPeriod;
+    if (monthlyRate === 0) {
+        newPeriod = Math.ceil(remaining / originalPayment);
+    } else {
+        newPeriod = Math.ceil(-Math.log(1 - (remaining * monthlyRate) / originalPayment) / Math.log(1 + monthlyRate));
+    }
 
-    // Генерираме нов погасителен план за оставащата главница и период
-    const recalculated = generateAnnuitySchedule(remaining, remainingMonths, apr);
+    // Генерираме новия план с оригиналната вноска за новия срок
+    const recalculated = [];
+    let remainingPrincipal = remaining;
 
-    // Коригираме номерацията на месеците
-    recalculated.forEach((item, idx) => {
-        item.month = month + idx + 1;
-    });
+    for (let i = 1; i <= newPeriod; i++) {
+        const interest = remainingPrincipal * monthlyRate;
+        let principalPayment = originalPayment - interest;
+        
+        // При последната вноска може да е необходимо да платим по-малко
+        if (i === newPeriod) {
+            principalPayment = remainingPrincipal;
+            const finalPayment = principalPayment + interest;
+            recalculated.push({
+                month: month + i,
+                payment: Number(finalPayment.toFixed(2)),
+                interest: Number(interest.toFixed(2)),
+                principal: Number(principalPayment.toFixed(2)),
+                remaining: 0
+            });
+        } else {
+            recalculated.push({
+                month: month + i,
+                payment: Number(originalPayment.toFixed(2)),
+                interest: Number(interest.toFixed(2)),
+                principal: Number(principalPayment.toFixed(2)),
+                remaining: Number((remainingPrincipal - principalPayment).toFixed(2))
+            });
+        }
+        
+        remainingPrincipal -= principalPayment;
+    }
 
     return newSchedule.concat(recalculated);
 }
