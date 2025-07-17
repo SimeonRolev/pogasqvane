@@ -184,12 +184,12 @@ const Calculator = () => {
             </div>
 
             <div style={{ backgroundColor: '#d1ecf1', padding: '15px', borderRadius: '6px' }}>
-              <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>С предсрочно погасяване ({formatCurrency(inputs.prepaymentAmount)}/месец)</h4>
+              <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>С предсрочно погасяване</h4>
               <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Общо плащания:</strong> {formatCurrency(results.withPrepayment.payments)}</p>
               <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Общо лихви:</strong> {formatCurrency(results.withPrepayment.interest)}</p>
-              <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Предсрочни плащания:</strong> {formatCurrency(results.withPrepayment.prepayments)}</p>
               <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Брой месеци:</strong> {formatNumber(results.withPrepayment.months)}</p>
               <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Срок:</strong> {formatNumber(Math.round(results.withPrepayment.months / 12 * 10) / 10)} години</p>
+              <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Предсрочни плащания:</strong> {formatCurrency(results.withPrepayment.prepayments)}</p>
             </div>
           </div>
 
