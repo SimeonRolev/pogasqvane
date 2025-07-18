@@ -103,7 +103,7 @@ const Calculator = () => {
               name="principal"
               value={inputs.principal}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
+              style={{ width: '80%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
 
@@ -116,7 +116,7 @@ const Calculator = () => {
               name="periodYears"
               value={inputs.periodYears}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
+              style={{ width: '80%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
 
@@ -130,20 +130,20 @@ const Calculator = () => {
               name="apr"
               value={inputs.apr}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
+              style={{ width: '80%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
 
           <div>
             <label style={{ display: 'block', marginBottom: '3px', fontWeight: 'bold', fontSize: '13px' }}>
-              Месечно предсрочно погасяване (лв):
+              Месечно предср. погас. (лв):
             </label>
             <input
               type="number"
               name="prepaymentAmount"
               value={inputs.prepaymentAmount}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
+              style={{ width: '80%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
         </div>
@@ -195,7 +195,7 @@ const Calculator = () => {
 
           <div style={{ backgroundColor: '#d4edda', padding: '15px', borderRadius: '6px' }}>
             <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>Икономии от предсрочното погасяване</h4>
-            <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Спестени лихви:</strong> {formatCurrency(results.withoutPrepayment.interest - results.withPrepayment.interest)}</p>
+            {/* <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Спестени лихви:</strong> {formatCurrency(results.withoutPrepayment.interest - results.withPrepayment.interest)}</p> */}
             <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Спестено време:</strong> {formatNumber(results.withoutPrepayment.months - results.withPrepayment.months)} месеца 
                ({formatNumber(Math.round((results.withoutPrepayment.months - results.withPrepayment.months) / 12 * 10) / 10)} години)</p>
             <p style={{ margin: '3px 0', fontSize: '12px' }}><strong>Общо спестени разходи:</strong> {formatCurrency(results.withoutPrepayment.payments - results.withPrepayment.payments)}</p>

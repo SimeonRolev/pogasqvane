@@ -24,7 +24,7 @@ ChartJS.register(
 const Investment = ({ initialValues = {} }) => {
   const [inputs, setInputs] = useState({
     monthlyInvestment: initialValues.monthlyInvestment || 3000,
-    yearlyReturnRate: initialValues.yearlyReturnRate || 5,
+    yearlyReturnRate: initialValues.yearlyReturnRate || 7,
     investmentMonths: initialValues.investmentMonths || 180,
     initialAmount: initialValues.initialAmount || 0
   });
@@ -126,7 +126,7 @@ const Investment = ({ initialValues = {} }) => {
               name="initialAmount"
               value={inputs.initialAmount}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
+              style={{ width: '80%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
 
@@ -139,7 +139,7 @@ const Investment = ({ initialValues = {} }) => {
               name="monthlyInvestment"
               value={inputs.monthlyInvestment}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
+              style={{ width: '80%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
 
@@ -153,7 +153,7 @@ const Investment = ({ initialValues = {} }) => {
               name="yearlyReturnRate"
               value={inputs.yearlyReturnRate}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
+              style={{ width: '80%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
 
@@ -166,7 +166,7 @@ const Investment = ({ initialValues = {} }) => {
               name="investmentMonths"
               value={inputs.investmentMonths}
               onChange={handleInputChange}
-              style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
+              style={{ width: '80%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '13px' }}
             />
           </div>
         </div>
